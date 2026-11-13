@@ -108,7 +108,7 @@ Sản phẩm gồm hai nhóm chức năng, dùng chung hàng đợi thẩm đị
 | Chức năng | Mô tả |
 |---|---|
 | Mô hình phát hiện rửa tiền (vận hành trực tiếp) | Dữ liệu IBM AML HI-Small. Đặc trưng đồ thị theo tài khoản và khung thời gian (fan-in, fan-out, phân tán rồi gom lại, chuyển tiền vòng, tài khoản trung gian), kết hợp quy tắc tần suất giao dịch, đưa vào XGBoost và giải thích bằng SHAP. Đây là hạng mục được ưu tiên phát triển trước |
-| Ngưỡng cảnh báo | Chọn ngưỡng sao cho tỷ lệ báo động giả trên tập kiểm định (validation) là 0,1%, tương đương khoảng 10 cảnh báo sai trên 10.000 giao dịch hợp lệ |
+| Ngưỡng cảnh báo | Chọn ngưỡng sao cho tỷ lệ báo động giả trên tập kiểm định (validation) là 0,1%, tức là khoảng 10 trên 10.000 giao dịch hợp lệ bị gắn cờ nhầm |
 | Agent điều tra | Sử dụng các công cụ chỉ đọc (tổng hợp tài khoản, quan hệ giữa các tài khoản, SHAP, chi tiết quy tắc) để lập ghi chú điều tra; mọi số liệu lấy từ kết quả công cụ; không có quyền khóa tài khoản |
 | Theo dõi độ lệch dữ liệu | Chỉ số PSI trên đặc trưng và điểm số, tỷ lệ cảnh báo theo khung thời gian; hiển thị trên trang quản trị |
 | Đánh giá bổ sung cho rửa tiền | Bộ dữ liệu Elliptic (chỉ đánh giá offline) |
@@ -187,7 +187,7 @@ Hệ thống không tự động khóa tài khoản trong mọi trường hợp.
 | FR-10 | Quyết định hồ sơ | Phê duyệt, từ chối hoặc yêu cầu bổ sung đều phải có mã lý do; mỗi quyết định được ghi nhật ký audit và thông báo cho khách hàng |
 | FR-11 | Phần giải thích do AI soạn | Ghi rõ "Do AI soạn, chỉ mang tính tham khảo"; mọi số liệu trong phần giải thích đều có trong kết quả kiểm tra của hồ sơ; không khẳng định "khớp" với kiểm tra không đạt |
 | FR-12 | Đối chiếu danh sách đen | Phát hiện được các biến thể không dấu, sai chính tả của tên trong danh sách; trùng khớp danh sách đen dẫn đến kết quả Đỏ |
-| FR-13 | Tạo cảnh báo rửa tiền | Cảnh báo chỉ được tạo dựa trên điểm của mô hình rửa tiền; mỗi tài khoản chuyển tiền có tối đa một cảnh báo trong một khung thời gian, liệt kê các giao dịch bị gắn cờ; cảnh báo kèm điểm, ngưỡng, quy tắc tần suất và đặc trưng đồ thị liên quan, cùng các yếu tố SHAP lớn nhất |
+| FR-13 | Tạo cảnh báo rửa tiền | Cảnh báo chỉ được tạo dựa trên điểm của mô hình rửa tiền; mỗi tài khoản chuyển tiền có tối đa một cảnh báo trong một khung thời gian, liệt kê các giao dịch bị gắn cờ và các tài khoản nhận (với mẫu dồn tiền, tài khoản nhận là đối tượng cần xem xét); lỗi của mô hình cũng tạo cảnh báo để chuyên viên xem xét; cảnh báo kèm điểm, ngưỡng, quy tắc tần suất và đặc trưng đồ thị liên quan, cùng các yếu tố SHAP lớn nhất |
 | FR-14 | Ghi chú điều tra | Mọi số liệu đều có trong kết quả công cụ của lần điều tra; số tiền chỉ được tính bằng công cụ tài chính, chính xác tuyệt đối và tách riêng theo từng loại tiền tệ; agent điều tra không có quyền khóa hoặc ra quyết định |
 | FR-15 | Xử lý cảnh báo | Chỉ chuyên viên được khóa tài khoản; không có cơ chế khóa tài khoản khi chưa có quyết định của chuyên viên |
 | FR-16 | Theo dõi vận hành | Trang quản trị hiển thị PSI theo đặc trưng và tỷ lệ cảnh báo theo khung thời gian, có cảnh báo khi vượt ngưỡng; trang kết quả hiển thị báo cáo đánh giá mới nhất |
@@ -251,7 +251,7 @@ Nhóm chỉ sử dụng dữ liệu tổng hợp, bộ dữ liệu nghiên cứu
 | Rủi ro | Ảnh hưởng | Biện pháp giảm thiểu |
 |---|---|---|
 | Giấy tờ giả, giả mạo khuôn mặt hoặc deepfake không bị phát hiện | Kích hoạt tài khoản gian lận | Kiểm tra trên máy chủ với mọi ảnh; điểm sát ngưỡng được chuyển chuyên viên; phân tích từng trường hợp bỏ sót |
-| Quá nhiều cảnh báo sai | Chuyên viên quá tải, bỏ sót cảnh báo thật; khách hàng hợp lệ bị ảnh hưởng | Giới hạn tỷ lệ báo động giả ở 0,1%; không tự động khóa tài khoản |
+| Quá nhiều cảnh báo sai | Chuyên viên quá tải, bỏ sót cảnh báo thật; khách hàng hợp lệ bị ảnh hưởng | Giới hạn tỷ lệ báo động giả ở 0,1%; không tự động khóa tài khoản. Với tỷ lệ rửa tiền khoảng 0,1%, độ chính xác (precision) tối đa khoảng 50%, nghĩa là có thể tới một nửa số giao dịch bị gắn cờ là hợp lệ |
 | LLM khẳng định khớp sai, tự tính tiền hoặc tự ra quyết định | Vi phạm ràng buộc của đề bài | Không cấp công cụ cho các thao tác này; kiểm tra nội dung khẳng định và nguồn gốc số liệu; kiểm tra phân tách ở mỗi lần build; kiểm thử an toàn yêu cầu 0 vi phạm |
 | Khách hàng hợp lệ phải chụp lại nhiều lần | Tỷ lệ từ chối nhầm cao | Có nút chụp thủ công và hướng dẫn cụ thể; OCR không đủ tin cậy dẫn đến yêu cầu chụp lại thay vì từ chối; hết lượt thì chuyển chuyên viên |
 | Mô hình vượt quá tài nguyên máy chủ 16 GB | Bản demo không chạy đủ các bước kiểm tra | Kiểm tra bộ nhớ với toàn bộ mô hình thật tại mốc C2 |
@@ -262,6 +262,7 @@ Nhóm chỉ sử dụng dữ liệu tổng hợp, bộ dữ liệu nghiên cứu
 - [ ] Nơi lưu bản chỉnh sửa OCR của khách hàng, giá trị được dùng để kiểm tra, và việc chỉnh sửa có dẫn đến kết quả Vàng hay không
 - [ ] Danh sách thao tác dùng trong kiểm tra liveness
 - [ ] Mục tiêu độ trễ toàn trình (chốt ở tuần 5 sau kiểm thử tải)
+- [ ] Cảnh báo đang gắn với tài khoản chuyển tiền và liệt kê tài khoản nhận; có cần tạo thêm cảnh báo riêng cho tài khoản nhận trong mẫu dồn tiền hay không
 
 ## 17. Thành viên nhóm T163
 | Vai trò | Thành viên | Phụ trách |
